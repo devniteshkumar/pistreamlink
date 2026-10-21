@@ -66,6 +66,21 @@ another PipeWire producer. The sender does not bypass the portal permission
 flow. Use `--source test` (the default) to diagnose the network and receiver
 without desktop capture.
 
+`run_pc.sh` automatically selects the first available `Video/Source` node.
+Override that selection by setting `PIPEWIRE_TARGET` to a PipeWire node ID:
+
+```sh
+PIPEWIRE_TARGET=67 ./run_pc.sh
+```
+
+Camera nodes are automatically requested as MJPEG and decoded before
+encoding. For a screen or other raw video node, the script uses raw video.
+You can override the detected format with `PIPEWIRE_FORMAT=raw` or
+`PIPEWIRE_FORMAT=mjpeg`.
+
+For screen sharing, start the desktop portal capture first, then run the
+script. The portal's screen node can be selected explicitly with its node ID.
+
 PipeWire sources negotiate their native format first. The sender then converts,
 scales, and rate-limits that stream to the requested `--width`, `--height`, and
 `--fps`, so those values do not need to be supported directly by the capture

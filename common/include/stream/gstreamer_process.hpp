@@ -58,6 +58,14 @@ inline std::vector<std::string> sender_pipeline(const Config& config) {
         pipeline.emplace_back("pipewiresrc");
         pipeline.emplace_back("target-object=" + config.pipewire_target);
         pipeline.emplace_back("do-timestamp=true");
+        pipeline.emplace_back("!");
+        if (config.pipewire_format == "mjpeg") {
+            pipeline.emplace_back("image/jpeg,width=1280,height=720");
+            pipeline.emplace_back("!");
+            pipeline.emplace_back("jpegdec");
+        } else {
+            pipeline.emplace_back("video/x-raw");
+        }
     } else {
         pipeline.emplace_back("videotestsrc");
         pipeline.emplace_back("is-live=true");

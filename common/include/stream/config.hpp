@@ -15,6 +15,7 @@ struct Config {
     std::string bind_address = "0.0.0.0";
     std::string source = "test";
     std::string pipewire_target;
+    std::string pipewire_format = "raw";
     std::uint16_t port = 5000;
     int width = 1920;
     int height = 1080;
@@ -46,6 +47,9 @@ inline void validate(const Config& config) {
     if (config.source == "pipewire" && config.pipewire_target.empty()) {
         throw std::runtime_error("--pipewire-target is required when --source=pipewire");
     }
+    if (config.pipewire_format != "raw" && config.pipewire_format != "mjpeg") {
+        throw std::runtime_error("--pipewire-format must be either raw or mjpeg");
+    }
     if (config.width < 1 || config.width > 16384) {
         throw std::runtime_error("--width must be between 1 and 16384");
     }
@@ -63,7 +67,7 @@ inline void validate(const Config& config) {
 inline void print_common_help(const char* program, bool sender) {
     std::cout << "Usage: " << program
               << (sender ? " [--host IP_OR_HOSTNAME] [--source test|pipewire]"
-                         " [--pipewire-target NODE]" : " [--bind IP_ADDRESS]")
+                         " [--pipewire-target NODE] [--pipewire-format raw|mjpeg]" : " [--bind IP_ADDRESS]")
               << " [--port PORT] [--width PIXELS] [--height PIXELS]"
                  " [--fps FPS] [--bitrate KBPS] [--help]\n";
 }
@@ -86,6 +90,8 @@ inline Config parse_args(int argc, char** argv, bool sender) {
             config.source = value;
         } else if (option == "--pipewire-target" && sender) {
             config.pipewire_target = value;
+        } else if (option == "--pipewire-format" && sender) {
+            config.pipewire_format = value;
         } else if (option == "--bind" && !sender) {
             config.bind_address = value;
         } else if (option == "--port") {
