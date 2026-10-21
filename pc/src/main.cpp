@@ -6,10 +6,11 @@
 int main(int argc, char** argv) {
     try {
         const auto config = stream::parse_args(argc, argv, true);
-        std::cout << "Stream PC to Pi — test-pattern sender\n"
+        std::cout << "Stream PC to Pi — sender\n"
                   << "Receiver: " << config.host << ':' << config.port << '\n'
                   << "Video: " << config.width << 'x' << config.height
                   << " @ " << config.fps << " FPS\n"
+                  << "Source: " << config.source << '\n'
                   << "Target bitrate: " << config.bitrate_kbps << " kbps\n"
                   << "Starting GStreamer VP8/RTP pipeline; press Ctrl-C to stop.\n";
         return stream::run_gstreamer(stream::sender_pipeline(config));

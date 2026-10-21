@@ -13,6 +13,8 @@ namespace stream {
 struct Config {
     std::string host = "127.0.0.1";
     std::string bind_address = "0.0.0.0";
+    std::string source = "test";
+    std::string pipewire_target;
     std::uint16_t port = 5000;
     int width = 1920;
     int height = 1080;
@@ -38,6 +40,12 @@ inline std::uint16_t parse_port(std::string_view value) {
 }
 
 inline void validate(const Config& config) {
+    if (config.source != "test" && config.source != "pipewire") {
+        throw std::runtime_error("--source must be either test or pipewire");
+    }
+    if (config.source == "pipewire" && config.pipewire_target.empty()) {
+        throw std::runtime_error("--pipewire-target is required when --source=pipewire");
+    }
     if (config.width < 1 || config.width > 16384) {
         throw std::runtime_error("--width must be between 1 and 16384");
     }
@@ -54,7 +62,8 @@ inline void validate(const Config& config) {
 
 inline void print_common_help(const char* program, bool sender) {
     std::cout << "Usage: " << program
-              << (sender ? " [--host IP_OR_HOSTNAME]" : " [--bind IP_ADDRESS]")
+              << (sender ? " [--host IP_OR_HOSTNAME] [--source test|pipewire]"
+                         " [--pipewire-target NODE]" : " [--bind IP_ADDRESS]")
               << " [--port PORT] [--width PIXELS] [--height PIXELS]"
                  " [--fps FPS] [--bitrate KBPS] [--help]\n";
 }
@@ -73,6 +82,10 @@ inline Config parse_args(int argc, char** argv, bool sender) {
         const std::string_view value(argv[++i]);
         if (option == "--host" && sender) {
             config.host = value;
+        } else if (option == "--source" && sender) {
+            config.source = value;
+        } else if (option == "--pipewire-target" && sender) {
+            config.pipewire_target = value;
         } else if (option == "--bind" && !sender) {
             config.bind_address = value;
         } else if (option == "--port") {

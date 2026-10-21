@@ -50,12 +50,20 @@ inline int run_gstreamer(const std::vector<std::string>& arguments) {
 }
 
 inline std::vector<std::string> sender_pipeline(const Config& config) {
-    return {
+    std::vector<std::string> pipeline{
         "gst-launch-1.0",
         "-e",
-        "videotestsrc",
-        "is-live=true",
-        "pattern=smpte",
+    };
+    if (config.source == "pipewire") {
+        pipeline.emplace_back("pipewiresrc");
+        pipeline.emplace_back("target-object=" + config.pipewire_target);
+        pipeline.emplace_back("do-timestamp=true");
+    } else {
+        pipeline.emplace_back("videotestsrc");
+        pipeline.emplace_back("is-live=true");
+        pipeline.emplace_back("pattern=smpte");
+    }
+    pipeline.insert(pipeline.end(), {
         "!",
         "video/x-raw,width=" + std::to_string(config.width) +
             ",height=" + std::to_string(config.height) +
@@ -69,13 +77,15 @@ inline std::vector<std::string> sender_pipeline(const Config& config) {
         "!",
         "rtpvp8pay",
         "pt=96",
+        "mtu=1200",
         "!",
         "udpsink",
         "host=" + config.host,
         "port=" + std::to_string(config.port),
         "sync=false",
         "async=false",
-    };
+    });
+    return pipeline;
 }
 
 inline std::vector<std::string> receiver_pipeline(const Config& config) {
@@ -86,6 +96,10 @@ inline std::vector<std::string> receiver_pipeline(const Config& config) {
         "address=" + config.bind_address,
         "port=" + std::to_string(config.port),
         "caps=application/x-rtp,media=video,encoding-name=VP8,payload=96,clock-rate=90000",
+        "!",
+        "rtpjitterbuffer",
+        "latency=50",
+        "drop-on-latency=true",
         "!",
         "rtpvp8depay",
         "!",

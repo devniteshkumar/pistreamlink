@@ -1,8 +1,9 @@
 # Stream PC to Pi — Milestone 2
 
 C++20/CMake prototype for the Fedora PC sender and Arch Linux ARM receiver.
-The sender emits a GStreamer test pattern over VP8/RTP/UDP, and the receiver
-decodes it and displays it through the platform's GStreamer video sink.
+The sender can emit a GStreamer test pattern or a PipeWire video source over
+VP8/RTP/UDP, and the receiver decodes it and displays it through the
+platform's GStreamer video sink.
 VP8 is used for this proof of concept because H.264 plugins are not available
 in the current development environment; the pipeline boundary is isolated so
 H.264 can be enabled after the target plugins are verified.
@@ -48,6 +49,21 @@ run until GStreamer exits or Ctrl-C is pressed.
 - `cmake --build build -j` succeeds on both machines.
 - The receiver displays the sender's SMPTE test pattern over the existing LAN.
 - `--help` displays usage; invalid values produce an error and exit status 2.
+
+## Desktop capture on Wayland
+
+The sender supports a PipeWire capture node selected by its PipeWire node
+identifier:
+
+```sh
+./build/pc_sender --host PI_IP_OR_HOSTNAME --source pipewire \
+  --pipewire-target NODE_ID --width 1920 --height 1080 --fps 60
+```
+
+The capture node must already be provided by a Wayland desktop portal or
+another PipeWire producer. The sender does not bypass the portal permission
+flow. Use `--source test` (the default) to diagnose the network and receiver
+without desktop capture.
 
 Start the receiver first:
 
