@@ -14,7 +14,8 @@ H.264 can be enabled after the target plugins are verified.
 - A C++20 compiler (GCC 10+ or a recent Clang)
 - `make` or another CMake-supported build tool
 - GStreamer 1.x runtime with `videotestsrc`, `vp8enc`, `rtpvp8pay`,
-  `udpsink`, `udpsrc`, `rtpvp8depay`, `vp8dec`, and a video sink
+  `udpsink`, `udpsrc`, `rtpvp8depay`, `vp8dec`, `videoconvert`, `videoscale`,
+  `videorate`, and a video sink
 
 ## Build
 
@@ -64,6 +65,11 @@ The capture node must already be provided by a Wayland desktop portal or
 another PipeWire producer. The sender does not bypass the portal permission
 flow. Use `--source test` (the default) to diagnose the network and receiver
 without desktop capture.
+
+PipeWire sources negotiate their native format first. The sender then converts,
+scales, and rate-limits that stream to the requested `--width`, `--height`, and
+`--fps`, so those values do not need to be supported directly by the capture
+node.
 
 Start the receiver first:
 

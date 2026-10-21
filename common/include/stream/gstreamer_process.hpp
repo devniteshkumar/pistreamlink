@@ -65,11 +65,15 @@ inline std::vector<std::string> sender_pipeline(const Config& config) {
     }
     pipeline.insert(pipeline.end(), {
         "!",
+        "videoconvert",
+        "!",
+        "videoscale",
+        "!",
+        "videorate",
+        "!",
         "video/x-raw,width=" + std::to_string(config.width) +
             ",height=" + std::to_string(config.height) +
             ",framerate=" + std::to_string(config.fps) + "/1",
-        "!",
-        "videoconvert",
         "!",
         "vp8enc",
         "deadline=1",
