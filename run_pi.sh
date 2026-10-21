@@ -1,0 +1,1 @@
+./build/pi_receiver --bind 0.0.0.0 --port 5000 --width 1920 --height 1080 --fps 60 --bitrate 12000
